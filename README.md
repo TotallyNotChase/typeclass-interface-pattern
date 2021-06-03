@@ -211,6 +211,11 @@ For implementations that were provided, you simply use them - as long as they pa
 
 [1] In standard C, A variadic argument represents *1 or more* arguments. Not *0 or more*. This means that you may have to have a dummy argument to really achieve the "0 or more" arguments concept that you'll need for truly optional arguments.
 
+## Less redundancy for the definer
+In general, defining all the typeclasses and its respective `impl_` macro is very similar. By spamming enough meta macros, you should be able to abstract out the defining part completely.
+
+In general, you could have a singular macro to define the vtable and the typeclass instance together - it just needs to know some information about the functions. Next, you need a general `impl` macro. It should be able to deduce information about the functions of a typeclass (possibly through an object like macro), and define a function similar to how the current `impl_` macro does. You'll definitely need [`mapping`](https://github.com/swansontec/map-macro/blob/master/map.h) for this.
+
 # Limitations
 * Polymorphic return types, i.e when the return type is a typeclass instance, generally involve heap allocation. This is because the `self` member is of type- `void*`. You can only assign pointers to it. But you can't assign the address of a local variable since its lifetime ends after the function returns.
 * There's no way to have a function's **return type**, be the *exact same* as a **polymorphic input (argument) type**. This is because there's no way to know *the exact type* wrapped inside a typeclass. You can return the same polymorphic type. But in many cases, this isn't what you'd want.
