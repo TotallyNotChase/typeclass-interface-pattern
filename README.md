@@ -200,7 +200,7 @@ The code snippets above are all psuedocode for a general idea. This concept is u
 # Here be meta-macros
 **NOTE**: The ideas and abstractions described in this section **are not** *integral* enough to the actual pattern. If you want maximum transparency, you may safely stop ignore this.
 
-Ah, meta programming with macros. Remarkable projects like [metalang99](), [C99-Lambda](), [obj.h](), [clonf.h]() and [many more](), really showcase how ridiculously strong (and evil) the C preprocessor can be in the right hands. Surely, meta macros can be used here too? To make some magical abstractions?
+Ah, meta programming with macros. Remarkable projects like [metalang99](https://github.com/Hirrolot/metalang99), [C99-Lambda](https://github.com/Leushenko/C99-Lambda), [obj.h](https://github.com/small-c/obj.h), [clofn.h](https://github.com/yulon/clofn) and [many more](https://github.com/Hirrolot/awesome-c-preprocessor), really showcase how ridiculously strong (and evil) the C preprocessor can be in the right hands. Surely, meta macros can be used here too? To make some magical abstractions?
 
 Well yes, not entirely sure how magical they would be though. I'm not going to go through the implementations of these - I'd rather just discuss the concepts. Following is a list of "abstractions", wrapping around the typeclass pattern, that you can implement with macros.
 
