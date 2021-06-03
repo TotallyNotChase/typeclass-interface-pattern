@@ -2,6 +2,15 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define CONCAT_(x, y) x ## y
+#define CONCAT(x, y) CONCAT_(x, y)
+
+/* Consistently name the impl functions */
+#define ImplName(T, TypeclassName) CONCAT(CONCAT(T, _to_), TypeclassName)
+
+/* "Apply" a typeclass over a concrete type */
+#define ap(x, T, TypeclassName) ImplName(T, TypeclassName)(x)
+
 /* The `Show` typeclass allows types to be turned into their string representation */
 typedef struct
 {
@@ -13,15 +22,6 @@ typedef struct
     void* self;
     ShowTC const* tc;
 } Show;
-
-#define CONCAT_(x, y) x ## y
-#define CONCAT(x, y) CONCAT_(x, y)
-
-/* Consistently name the impl functions */
-#define ImplName(T, TypeclassName) CONCAT(CONCAT(T, _to_), TypeclassName)
-
-/* "Apply" a typeclass over a concrete type */
-#define ap(x, T, TypeclassName) ImplName(T, TypeclassName)(x)
 
 #define impl_show(T, show_f)                                                                                           \
     Show ImplName(T, Show)(T* x)                                                                                       \
