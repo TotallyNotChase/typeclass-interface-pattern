@@ -81,7 +81,7 @@ That's all there is to it! *This* is the typeclass pattern (or interface pattern
 **The code snippets above are all psuedocode for a general idea. This core idea is used to define and implement a [`Show`](https://hackage.haskell.org/package/base-4.15.0.0/docs/Text-Show.html#t:Show) typeclass for an `enum` in [barebones.c](./barebones.c).**
 
 # Combining multiple typeclasses/interfaces
-*Reference code: [combined-barebones.c](./combined-barebones.c)*
+*Reference code: [barebones-combined.c](./barebones-combined.c)*
 
 In real world code, you'll require types that implement multiple typeclasses/interfaces. You can encode that by having a struct containing the usual `self` member, and *multiple* vtables - each corresponding to a specific typeclass.
 
@@ -114,7 +114,7 @@ If you implemented `Show` for `int`, and named the *implementation function* `in
 int x = 42;
 ShowEnum shen = { .self = &x, .showtc = int_to_show(&x).tc, .enumtc = int_to_enum(&x).tc };
 ```
-Feel free to generalize this into a function. This concept is showcased in [combined-barebones.c](./combined-barebones.c).
+Feel free to generalize this into a function. This concept is showcased in [barebones-combined.c](./barebones-combined.c).
 
 You now have **full**, **type safe**, and **flexible** *polymorphism*. Usable *in any context* where you can use regular types. **Function arguments**, **container elements**, **polymorphic return values** etc. Many of these polymorphic types will be the combination of many typeclasses. Which may feel somewhat dry, and repetitive. However, the core idea is intentionally barebones. You can always design macros around these to make it less dry. Or, you may choose to simply have this completely transparent, your choice.
 
