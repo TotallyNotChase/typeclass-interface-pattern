@@ -17,7 +17,9 @@ Before we move on to implementations, I expect you to be familar with *action ba
 * Base polymorphism around actions (abilities), not objects.
 
 [1] This comes at a cost, see [#2](https://github.com/TotallyNotChase/typeclass-interface-pattern/issues/2).
+
 [2] As noted in [#2](https://github.com/TotallyNotChase/typeclass-interface-pattern/issues/2), you may have to give up type safety to actually achieve full conformance.
+
 [3] Core idea supports C90; examples use compound literals (C99) for convenience (not required); further (highly optional) abstractions may require C99 or even C11
 # Core Idea
 *Reference code: [barebones.c](./barebones.c)*
@@ -64,6 +66,7 @@ typedef some_type T;
 /* The `func_name` ability (shown above) impl for `T` */
 ReturnType T_func_name(T* self, ...);
 ```
+**NOTE**: For strict conformance, you'll need to usee `void* self` instead of the concrete and exact type.
 
 Assuming this is the only ability required by a certain typeclass, you can now make a function to convert `T` to that typeclass-
 ```c
@@ -73,6 +76,8 @@ TypeclassName T_to_TypeclassName(T* x)
     return (TypeclassName){.tc = &tc, .self = x};
 }
 ```
+**NOTE**: For strict conformance, omit the explicit cast here. The `self` parameter should already be `void*`.
+
 This is called the **Implementation Function**. As expected, it accepts a pointer to that concrete type (since it has to be assignable to `void*`), wraps it around its typeclass instance, and returns it. The **lifetime** of the returned struct is the *same as the lifetime of the data pointed to by the given pointer*.
 
 In general, neither this typeclass struct, nor the typeclass functions should take ownership of the concrete type. Though this isn't a forced requirement, just a suggested one.
