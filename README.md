@@ -9,15 +9,16 @@ You're free to use this pattern and the related ideas discussed in this reposito
 Before we move on to implementations, I expect you to be familar with *action based polymorphism*. For the OO programmer, this is an [Interface](https://docs.oracle.com/javase/tutorial/java/concepts/interface.html). For the Functional programmer, this is a [Type class](https://en.wikipedia.org/wiki/Type_class). Though in reality, the implementation is more akin to [Trait objects](https://doc.rust-lang.org/book/ch17-02-trait-objects.html) than real typeclasses.
 
 # Goals
-* Type safety - try not to make "user" interfaces (i.e concrete implementations) use `void*`.
-* **Full**, and **strict** standard C<sup>[1]</sup> conformance - no hacky strict alias violating shenanigans.
-
-  [1] Core idea supports C90; examples use compound literals (C99) for convenience (not required); further (highly optional) abstractions may require C99 or even C11
+* Type safety<sup>[1]</sup> - try not to make "user" interfaces (i.e concrete implementations) use `void*`.
+* **Full**, and **strict**<sup>[2]</sup> standard C<sup>[3]</sup> conformance - no hacky strict alias violating shenanigans.
 * Extensible and usable in libraries (unlike `_Generic`) - possible through dynamic dispatch.
 * Open to being used with existing C libraries. Implementing typeclasses should not have special requirements.
 * As transparent as possible, especially from a usage perspective.
 * Base polymorphism around actions (abilities), not objects.
 
+[1] This comes at a cost, see [#2](https://github.com/TotallyNotChase/typeclass-interface-pattern/issues/2).
+[2] As noted in [#2](https://github.com/TotallyNotChase/typeclass-interface-pattern/issues/2), you may have to give up type safety to actually achieve full conformance.
+[3] Core idea supports C90; examples use compound literals (C99) for convenience (not required); further (highly optional) abstractions may require C99 or even C11
 # Core Idea
 *Reference code: [barebones.c](./barebones.c)*
 
