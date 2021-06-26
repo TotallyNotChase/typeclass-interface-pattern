@@ -24,11 +24,15 @@ typedef struct
 } Show;
 
 #define impl_show(T, show_f)                                                                                           \
-    Show ImplName(T, Show)(T* x)                                                                                       \
+    static inline char* CONCAT(show_f, __)(void* self)                                                                 \
     {                                                                                                                  \
         char* (*const show_)(T* self) = (show_f);                                                                      \
         (void)show_;                                                                                                   \
-        static ShowTC const tc = {.show = (char* (*const)(void*))(show_f) };                                           \
+        return show_f(self);                                                                                           \
+    }                                                                                                                  \
+    Show ImplName(T, Show)(T* x)                                                                                       \
+    {                                                                                                                  \
+        static ShowTC const tc = {.show = (CONCAT(show_f, __)) };                                                      \
         return (Show){.tc = &tc, .self = x};                                                                           \
     }
 
