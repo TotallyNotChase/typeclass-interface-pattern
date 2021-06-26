@@ -32,8 +32,8 @@ typedef struct
     }                                                                                                                  \
     Show ImplName(T, Show)(T* x)                                                                                       \
     {                                                                                                                  \
-        static ShowTC const tc = {.show = (CONCAT(show_f, __)) };                                                      \
-        return (Show){.tc = &tc, .self = x};                                                                           \
+        static ShowTC const tc = { .show = (CONCAT(show_f, __)) };                                                     \
+        return (Show){ .tc = &tc, .self = x };                                                                         \
     }
 
 /* Polymorphic printing function */

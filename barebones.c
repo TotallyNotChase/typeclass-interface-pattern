@@ -68,8 +68,8 @@ static inline char* antioch_show__(void* self)
 Show prep_antioch_show(Antioch* x)
 {
     /* Build the vtable once and attach a pointer to it every time */
-    static ShowTC const tc = {.show = antioch_show__ };
-    return (Show){.tc = &tc, .self = x};
+    static ShowTC const tc = { .show = antioch_show__ };
+    return (Show){ .tc = &tc, .self = x };
 }
 
 int main(void)
