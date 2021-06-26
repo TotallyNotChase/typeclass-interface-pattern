@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define CONCAT_(a, b) a##b
+#define CONCAT(a, b)  CONCAT_(a, b)
+
 /* The `Show` typeclass allows types to be turned into their string representation */
 typedef struct
 {
@@ -15,12 +18,16 @@ typedef struct
 } Show;
 
 #define impl_show(T, Name, show_f)                                                                                     \
-    Show Name(T* x)                                                                                                    \
+    static inline char* CONCAT(show_f, __)(void* self)                                                                 \
     {                                                                                                                  \
         char* (*const show_)(T* self) = (show_f);                                                                      \
         (void)show_;                                                                                                   \
-        static ShowTC const tc = {.show = (char* (*const)(void*))(show_f) };                                           \
-        return (Show){.tc = &tc, .self = x};                                                                           \
+        return show_f(self);                                                                                           \
+    }                                                                                                                  \
+    Show Name(T* x)                                                                                                    \
+    {                                                                                                                  \
+        static ShowTC const tc = { .show = (CONCAT(show_f, __)) };                                                     \
+        return (Show){ .tc = &tc, .self = x };                                                                         \
     }
 
 /* Polymorphic printing function */
