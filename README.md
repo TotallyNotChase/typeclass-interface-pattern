@@ -49,8 +49,8 @@ A polymorphic function could then look like-
 void poly_foo(TypeclassName x)
 {
     /* Use x's abilities here */
-    x.tc->func_name(x.self);
-    ...
+    x.tc->func_name(x.self, ...);
+    /* ... */
 }
 ```
 
@@ -65,7 +65,7 @@ ReturnType T_func_name(T* self, ...);
 
 Assuming this is the only ability required by a certain typeclass, you can now make a function to convert `T` to that typeclass-
 ```c
-TypeclassName T_to_TypeclassName(T* x)
+TypeclassName T_to_TypeclassName_inst(T* x)
 {
     static TypeclassName_vtable const tc = { .func_name = T_func_name };
     return (TypeclassName){ .tc = &tc, .self = x };
@@ -80,13 +80,13 @@ static inline ReturnType T_func_name__(void* self, ...)
 ```
 **NOTE**: The ellipsis (`...`) here does not denote variable arguments - it simply is a placeholder for more arguments. In real implementations, this should be replaced with the exact arguments of the expected functions.
 
-Now, inside `T_to_TypeclassName`, you can assign `T_func_name__` to `func_name`. Because void pointer conversions are special cased by the standard, and are always redundant (cast to `void*`, cast back to original - valid and reliable) - this wrapper function will always be compliant and present no traps as long as it calls the correct function - a predicate that can be **guaranteed** by further restrictions, discussed in the [for-a-few-macros-more](#for-a-few-macros-more) section.
+Now, inside `T_to_TypeclassName_inst`, you can assign `T_func_name__` to `func_name`. Because void pointer conversions are special cased by the standard, and are always redundant (cast to `void*`, cast back to original - valid and reliable) - this wrapper function will always be compliant and present no traps as long as it calls the correct function - a predicate that can be **guaranteed** by further restrictions, discussed in the [for-a-few-macros-more](#for-a-few-macros-more) section.
 
 One such wrapper function must be defined for every typeclass function. The sole goal of these wrapper functions is to simply allow the concrete, type-safe, user provided function to be called with a `void* self` argument. All arguments except `self` **must be the exact same**.
 
 For typeclass functions that have a return type of `void` - the wrapper function should merely call the user provided function, not return its value. As that would be semantically invalid.
 
-`T_to_TypeclassName` is called the **Implementation Function**. As expected, it accepts a pointer to that concrete type (since it has to be assignable to `void*`), wraps it around its typeclass instance, and returns it. The **lifetime** of the returned struct is the *same as the lifetime of the data pointed to by the given pointer*.
+`T_to_TypeclassName_inst` is called the **Implementation Function**. As expected, it accepts a pointer to that concrete type (since it has to be assignable to `void*`), wraps it around its typeclass instance, and returns it. The **lifetime** of the returned struct is the *same as the lifetime of the data pointed to by the given pointer*.
 
 In general, neither this typeclass struct, nor the typeclass functions should take ownership of the concrete type. Though this isn't a forced requirement, just a suggested one.
 
@@ -123,10 +123,10 @@ typedef struct
 ```
 Now, you have a typeclass instance - that requires *multiple typeclass implementations*. You'd wrap a type into this *combined typeclass instance* by obtaining the `Show` and `Enum` typeclass implementations *for that type* (by calling the implementation functions), extracting the vtables from those instances and putting them into this struct.
 
-If you implemented `Show` for `int`, and named the *implementation function* `int_to_show`, implemented `Enum` for `int`, and named the *implementation function* `int_to_enum`, this whole process would look like-
+If you implemented `Show` for `int`, and named the *implementation function* `int_to_show_inst`, implemented `Enum` for `int`, and named the *implementation function* `int_to_enum_inst`, this whole process would look like-
 ```c
 int x = 42;
-ShowEnum shen = { .self = &x, .showtc = int_to_show(&x).tc, .enumtc = int_to_enum(&x).tc };
+ShowEnum shen = { .self = &x, .showtc = int_to_show_inst(&x).tc, .enumtc = int_to_enum_inst(&x).tc };
 ```
 Feel free to generalize this into a function. This concept is showcased in [barebones-combined.c](./barebones-combined.c).
 
@@ -155,7 +155,7 @@ This pattern, as implemented with maximum transparency above, may seem rather un
 ```
 **NOTE**: The ellipsis (`...`) here does not denote variable arguments - it simply is a placeholder for more arguments. In real implementations, this should be replaced with the exact arguments of the expected functions. One wrapper function must be defined for every typeclass function, as dicussed in the [core-idea](#core-idea) section.
 
-This is very similar to the `T_to_TypeclassName` above. But with a touch more "features".
+This is very similar to the `T_to_TypeclassName_inst` above. But with a touch more "features".
 ```c
 ReturnType (*const func_name_)(T* self, ...) = (func_name_f);
 (void)func_name_;
@@ -166,11 +166,11 @@ The first line ensures the function implementation is the exact type it needs to
 
 The second line silences the "unused variable" warning and allows the 2 lines to be a no-op.
 
-Otherwise, the macro is an exact analog of `T_to_TypeclassName`, it takes the concrete type the implementation is for, the name to define this wrapper function as, and all the required function implementations.
+Otherwise, the macro is an exact analog of `T_to_TypeclassName_inst`, it takes the concrete type the implementation is for, the name to define this wrapper function as, and all the required function implementations.
 
 You can now simplify the implementation for `T` above-
 ```c
-impl_TypeclassName(T, T_to_TypeclassName, T_func_name)
+impl_TypeclassName(T, T_to_TypeclassName_inst, T_func_name)
 ```
 
 **The code snippets above are all psuedocode for a general idea. This concept is used to define a [`Show`](https://hackage.haskell.org/package/base-4.15.0.0/docs/Text-Show.html#t:Show) typeclass for an `enum` in [barebones-macro.c](./barebones-macro.c).**
@@ -188,12 +188,12 @@ If the user is disallowed from choosing their own names for the implementation f
 #define CONCAT(x, y) CONCAT_(x, y)
 
 /* Consistently name the impl functions */
-#define ImplName(T, TypeclassName) CONCAT(CONCAT(T, _to_), TypeclassName)
+#define ImplName(T, TypeclassName) CONCAT(CONCAT(T, _to_), CONCAT(TypeclassName, _inst))
 
 #define impl_TypeclassName(T, func_name_f)                                                                             \
     ReturnType CONCAT(func_name_f, __)(void* self, ...)                                                                \
     {                                                                                                                  \
-        char* (*const func_name_)(T* self) = (func_name_f);                                                            \
+        ReturnType (*const func_name_)(T* self) = (func_name_f);                                                       \
         (void)func_name_;                                                                                              \
         return func_name_f(self, ...);                                                                                 \
     }                                                                                                                  \

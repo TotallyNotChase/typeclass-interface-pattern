@@ -6,7 +6,7 @@
 #define CONCAT(x, y) CONCAT_(x, y)
 
 /* Consistently name the impl functions */
-#define ImplName(T, TypeclassName) CONCAT(CONCAT(T, _to_), TypeclassName)
+#define ImplName(T, TypeclassName) CONCAT(CONCAT(T, _to_), CONCAT(TypeclassName, _inst))
 
 /* "Apply" a typeclass over a concrete type */
 #define ap(x, T, TypeclassName) ImplName(T, TypeclassName)(x)

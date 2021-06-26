@@ -64,7 +64,7 @@ static inline char* int_show__(void* self)
 }
 
 /* Make function to build a generic `Show` out of a concrete type- `int` */
-Show int_to_show(int* x)
+Show int_to_show_inst(int* x)
 {
     /* Build the vtable once and attach a pointer to it every time */
     static ShowTC const tc = { .show = int_show__ };
@@ -84,7 +84,7 @@ static inline int int_from_enum__(void* self)
 }
 
 /* Make function to build a generic `Show` out of a concrete type- `int` */
-Enum int_to_enum(int* x)
+Enum int_to_enum_inst(int* x)
 {
     /* Build the vtable once and attach a pointer to it every time */
     static EnumTC const tc = { .from_enum = int_from_enum__ };
@@ -94,7 +94,7 @@ Enum int_to_enum(int* x)
 int main(void)
 {
     int x = 42;
-    ShowEnum shen = { .self = &x, .showtc = int_to_show(&x).tc, .enumtc = int_to_enum(&x).tc };
+    ShowEnum shen = { .self = &x, .showtc = int_to_show_inst(&x).tc, .enumtc = int_to_enum_inst(&x).tc };
     print_shen(shen);
     return 0;
 }
